@@ -1,0 +1,82 @@
+/* DashLight admin styles */
+
+.dashlight {
+	--dashlight-good: #00a32a;
+	--dashlight-warning: #dba617;
+	--dashlight-critical: #d63638;
+	--dashlight-unknown: #a7aaad;
+}
+
+.dashlight-dot {
+	display: inline-block;
+	flex: 0 0 auto;
+	width: 10px;
+	height: 10px;
+	margin-top: 5px;
+	border-radius: 50%;
+	background: var(--dashlight-unknown);
+}
+
+.dashlight-good .dashlight-dot { background: var(--dashlight-good); }
+.dashlight-warning .dashlight-dot { background: var(--dashlight-warning); }
+.dashlight-critical .dashlight-dot { background: var(--dashlight-critical); }
+.dashlight-unknown .dashlight-dot {
+	background: transparent;
+	box-shadow: inset 0 0 0 2px var(--dashlight-unknown);
+}
+
+.dashlight-summary {
+	display: flex;
+	gap: 8px;
+	margin: 0 0 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 14px;
+}
+
+.dashlight-summary .dashlight-dot {
+	width: 12px;
+	height: 12px;
+	margin-top: 4px;
+}
+
+.dashlight-rows {
+	margin: 0;
+}
+
+.dashlight-row {
+	display: flex;
+	gap: 8px;
+	margin: 0 0 10px;
+}
+
+.dashlight-label {
+	flex: 0 0 82px;
+	font-weight: 600;
+}
+
+.dashlight-text {
+	flex: 1 1 auto;
+}
+
+.dashlight-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f1;
+	color: #646970;
+}
+
+.dashlight-check-now {
+	display: inline;
+	margin: 0;
+}
+
+.dashlight-credit {
+	margin: 12px 0 0;
+	color: #646970;
+	font-size: 12px;
+}
