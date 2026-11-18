@@ -1,6 +1,6 @@
-# DashLight
+# DashLights
 
-A plain-English status light for the WordPress dashboard. DashLight checks four things once a day and shows each as green, yellow, or red:
+Plain-English status lights for the WordPress dashboard. DashLights checks four things once a day and shows each as green, yellow, or red:
 
 - **Domain renewal:** when the domain expires, looked up through the registry's public RDAP service
 - **Security certificate:** when the site's SSL certificate expires
@@ -17,14 +17,14 @@ WordPress 6.4+, PHP 7.4+.
 
 ## Install
 
-Download the latest release zip and upload it in **Plugins → Add New → Upload Plugin**, or copy this folder to `wp-content/plugins/dashlight/`.
+Download the latest release zip and upload it in **Plugins → Add New → Upload Plugin**, or copy this folder to `wp-content/plugins/dashlights/`.
 
 ## For developers
 
-Report a backup DashLight can't see on its own:
+Report a backup DashLights can't see on its own:
 
 ```php
-add_filter( 'dashlight_backups', function ( $found ) {
+add_filter( 'dashlights_backups', function ( $found ) {
 	$found[] = array(
 		'time'   => my_last_backup_timestamp(),
 		'source' => 'My Backup Tool',
@@ -33,7 +33,7 @@ add_filter( 'dashlight_backups', function ( $found ) {
 } );
 ```
 
-Stored data: `dashlight_settings` and `dashlight_data` options, the `dashlight_rdap_bootstrap` transient, and the `dashlight_daily` scheduled event. All are removed when the plugin is deleted.
+Stored data: `dashlights_settings` and `dashlights_data` options, the `dashlights_rdap_bootstrap` transient, and the `dashlights_daily` scheduled event. All are removed when the plugin is deleted.
 
 ## License
 

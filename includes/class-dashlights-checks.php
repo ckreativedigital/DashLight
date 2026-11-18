@@ -2,7 +2,7 @@
 /**
  * The four checks, their stored results, and the plain-English messages for each.
  *
- * @package DashLight
+ * @package DashLights
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,15 +10,15 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Runs the checks and turns results into messages.
  */
-class DashLight_Checks {
+class DashLights_Checks {
 
 	const GOOD     = 'good';
 	const WARNING  = 'warning';
 	const CRITICAL = 'critical';
 	const UNKNOWN  = 'unknown';
 
-	const DATA_OPTION   = 'dashlight_data';
-	const BOOTSTRAP_KEY = 'dashlight_rdap_bootstrap';
+	const DATA_OPTION   = 'dashlights_data';
+	const BOOTSTRAP_KEY = 'dashlights_rdap_bootstrap';
 	const BOOTSTRAP_URL = 'https://data.iana.org/rdap/dns.json';
 
 	/**
@@ -162,7 +162,7 @@ class DashLight_Checks {
 			return self::grade_domain( $lookup['expires'], 'lookup', $lookup['domain'] );
 		}
 
-		$settings = DashLight_Settings::get();
+		$settings = DashLights_Settings::get();
 		if ( '' !== $settings['domain_date'] ) {
 			$manual = strtotime( $settings['domain_date'] . ' 23:59:59 UTC' );
 			if ( $manual ) {
@@ -452,11 +452,11 @@ class DashLight_Checks {
 		}
 
 		/**
-		 * Lets other code report a backup DashLight can't see on its own.
+		 * Lets other code report a backup DashLights can't see on its own.
 		 *
 		 * @param array $found List of [ 'time' => int, 'source' => string ].
 		 */
-		$found = apply_filters( 'dashlight_backups', $found );
+		$found = apply_filters( 'dashlights_backups', $found );
 
 		$latest = null;
 		foreach ( (array) $found as $backup ) {
@@ -501,10 +501,10 @@ class DashLight_Checks {
 	 */
 	public static function label( $key ) {
 		$labels = array(
-			'domain'  => __( 'Domain', 'dashlight' ),
-			'ssl'     => __( 'Certificate', 'dashlight' ),
-			'updates' => __( 'Updates', 'dashlight' ),
-			'backups' => __( 'Backups', 'dashlight' ),
+			'domain'  => __( 'Domain', 'dashlights' ),
+			'ssl'     => __( 'Certificate', 'dashlights' ),
+			'updates' => __( 'Updates', 'dashlights' ),
+			'backups' => __( 'Backups', 'dashlights' ),
 		);
 		return isset( $labels[ $key ] ) ? $labels[ $key ] : $key;
 	}
@@ -518,13 +518,13 @@ class DashLight_Checks {
 	public static function summary( $status ) {
 		switch ( $status ) {
 			case self::GOOD:
-				return __( 'Everything looks good.', 'dashlight' );
+				return __( 'Everything looks good.', 'dashlights' );
 			case self::WARNING:
-				return __( 'A few things need attention soon.', 'dashlight' );
+				return __( 'A few things need attention soon.', 'dashlights' );
 			case self::CRITICAL:
-				return __( 'Something needs attention now.', 'dashlight' );
+				return __( 'Something needs attention now.', 'dashlights' );
 			default:
-				return __( "We couldn't check everything yet.", 'dashlight' );
+				return __( "We couldn't check everything yet.", 'dashlights' );
 		}
 	}
 
@@ -548,7 +548,7 @@ class DashLight_Checks {
 	public static function message( $key, $result ) {
 		$status   = isset( $result['status'] ) ? $result['status'] : self::UNKNOWN;
 		$reason   = isset( $result['reason'] ) ? $result['reason'] : '';
-		$settings = admin_url( 'options-general.php?page=' . DashLight_Settings::PAGE );
+		$settings = admin_url( 'options-general.php?page=' . DashLights_Settings::PAGE );
 		$out      = array(
 			'text'      => '',
 			'link'      => '',
@@ -558,27 +558,27 @@ class DashLight_Checks {
 		switch ( $key ) {
 			case 'domain':
 				if ( 'local' === $reason ) {
-					$out['text'] = __( "This site isn't on a public domain yet, so there's nothing to look up.", 'dashlight' );
+					$out['text'] = __( "This site isn't on a public domain yet, so there's nothing to look up.", 'dashlights' );
 				} elseif ( self::UNKNOWN === $status ) {
-					$out['text']      = __( "We couldn't find your domain's renewal date.", 'dashlight' );
+					$out['text']      = __( "We couldn't find your domain's renewal date.", 'dashlights' );
 					$out['link']      = $settings;
-					$out['link_text'] = __( 'Add it in settings', 'dashlight' );
+					$out['link_text'] = __( 'Add it in settings', 'dashlights' );
 				} elseif ( 'manual_passed' === $reason ) {
 					/* translators: %s: date */
-					$out['text']      = sprintf( __( 'The renewal date you entered (%s) has passed. If you renewed, update it.', 'dashlight' ), self::format_date( $result['expires'] ) );
+					$out['text']      = sprintf( __( 'The renewal date you entered (%s) has passed. If you renewed, update it.', 'dashlights' ), self::format_date( $result['expires'] ) );
 					$out['link']      = $settings;
-					$out['link_text'] = __( 'Update the date', 'dashlight' );
+					$out['link_text'] = __( 'Update the date', 'dashlights' );
 				} else {
 					$days = self::days_until( $result['expires'] );
 					if ( self::GOOD === $status ) {
 						/* translators: %s: date */
-						$out['text'] = sprintf( __( 'Your domain renews on %s.', 'dashlight' ), self::format_date( $result['expires'] ) );
+						$out['text'] = sprintf( __( 'Your domain renews on %s.', 'dashlights' ), self::format_date( $result['expires'] ) );
 					} elseif ( (int) $result['expires'] <= time() ) {
-						$out['text'] = __( 'Your domain has expired. Renew it right away, or your website and email will stop working.', 'dashlight' );
+						$out['text'] = __( 'Your domain has expired. Renew it right away, or your website and email will stop working.', 'dashlights' );
 					} else {
 						$out['text'] = sprintf(
 							/* translators: %d: number of days */
-							_n( "Your domain expires in %d day. If it's set to renew automatically, you're covered.", "Your domain expires in %d days. If it's set to renew automatically, you're covered.", $days, 'dashlight' ),
+							_n( "Your domain expires in %d day. If it's set to renew automatically, you're covered.", "Your domain expires in %d days. If it's set to renew automatically, you're covered.", $days, 'dashlights' ),
 							$days
 						);
 					}
@@ -587,20 +587,20 @@ class DashLight_Checks {
 
 			case 'ssl':
 				if ( 'no_https' === $reason ) {
-					$out['text'] = __( "Your site isn't using a secure connection. Ask your host to turn on https.", 'dashlight' );
+					$out['text'] = __( "Your site isn't using a secure connection. Ask your host to turn on https.", 'dashlights' );
 				} elseif ( self::UNKNOWN === $status ) {
-					$out['text'] = __( "We couldn't read your security certificate. Your host may block this check.", 'dashlight' );
+					$out['text'] = __( "We couldn't read your security certificate. Your host may block this check.", 'dashlights' );
 				} else {
 					$days = self::days_until( $result['expires'] );
 					if ( self::GOOD === $status ) {
 						/* translators: %s: date */
-						$out['text'] = sprintf( __( 'Your security certificate is good until %s.', 'dashlight' ), self::format_date( $result['expires'] ) );
+						$out['text'] = sprintf( __( 'Your security certificate is good until %s.', 'dashlights' ), self::format_date( $result['expires'] ) );
 					} elseif ( (int) $result['expires'] <= time() ) {
-						$out['text'] = __( 'Your security certificate has expired, so visitors may see a warning. Contact your host.', 'dashlight' );
+						$out['text'] = __( 'Your security certificate has expired, so visitors may see a warning. Contact your host.', 'dashlights' );
 					} else {
 						$out['text'] = sprintf(
 							/* translators: %d: number of days */
-							_n( "Your security certificate expires in %d day. It usually renews by itself. If it doesn't, contact your host.", "Your security certificate expires in %d days. It usually renews by itself. If it doesn't, contact your host.", $days, 'dashlight' ),
+							_n( "Your security certificate expires in %d day. It usually renews by itself. If it doesn't, contact your host.", "Your security certificate expires in %d days. It usually renews by itself. If it doesn't, contact your host.", $days, 'dashlights' ),
 							$days
 						);
 					}
@@ -609,36 +609,36 @@ class DashLight_Checks {
 
 			case 'updates':
 				if ( self::GOOD === $status ) {
-					$out['text'] = __( 'Everything is up to date.', 'dashlight' );
+					$out['text'] = __( 'Everything is up to date.', 'dashlights' );
 					break;
 				}
 				$parts = array();
 				if ( ! empty( $result['core'] ) ) {
-					$parts[] = __( 'WordPress', 'dashlight' );
+					$parts[] = __( 'WordPress', 'dashlights' );
 				}
 				if ( ! empty( $result['plugins'] ) ) {
 					/* translators: %d: number of plugins */
-					$parts[] = sprintf( _n( '%d plugin', '%d plugins', $result['plugins'], 'dashlight' ), $result['plugins'] );
+					$parts[] = sprintf( _n( '%d plugin', '%d plugins', $result['plugins'], 'dashlights' ), $result['plugins'] );
 				}
 				if ( ! empty( $result['themes'] ) ) {
 					/* translators: %d: number of themes */
-					$parts[] = sprintf( _n( '%d theme', '%d themes', $result['themes'], 'dashlight' ), $result['themes'] );
+					$parts[] = sprintf( _n( '%d theme', '%d themes', $result['themes'], 'dashlights' ), $result['themes'] );
 				}
 				/* translators: %s: list of what needs updating, e.g. "WordPress, 3 plugins" */
-				$out['text'] = sprintf( __( 'Updates waiting: %s.', 'dashlight' ), implode( ', ', $parts ) );
+				$out['text'] = sprintf( __( 'Updates waiting: %s.', 'dashlights' ), implode( ', ', $parts ) );
 				if ( current_user_can( 'update_plugins' ) ) {
 					$out['link']      = admin_url( 'update-core.php' );
-					$out['link_text'] = __( 'Update now', 'dashlight' );
+					$out['link_text'] = __( 'Update now', 'dashlights' );
 				}
 				break;
 
 			case 'backups':
 				if ( self::UNKNOWN === $status ) {
-					$out['text'] = __( "We can't see a backup plugin. Your host may back up your site, so check with them.", 'dashlight' );
+					$out['text'] = __( "We can't see a backup plugin. Your host may back up your site, so check with them.", 'dashlights' );
 				} else {
 					$out['text'] = sprintf(
 						/* translators: 1: time since the backup, e.g. "2 days", 2: backup plugin name */
-						__( 'Last backup: %1$s ago, by %2$s.', 'dashlight' ),
+						__( 'Last backup: %1$s ago, by %2$s.', 'dashlights' ),
 						human_time_diff( $result['time'] ),
 						$result['source']
 					);

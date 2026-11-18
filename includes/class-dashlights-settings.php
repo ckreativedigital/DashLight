@@ -1,8 +1,8 @@
 <?php
 /**
- * Settings screen: Settings → DashLight.
+ * Settings screen: Settings → DashLights.
  *
- * @package DashLight
+ * @package DashLights
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,10 +10,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Stores and renders the plugin's few settings.
  */
-class DashLight_Settings {
+class DashLights_Settings {
 
-	const OPTION = 'dashlight_settings';
-	const PAGE   = 'dashlight';
+	const OPTION = 'dashlights_settings';
+	const PAGE   = 'dashlights';
 
 	/**
 	 * Registers hooks.
@@ -22,8 +22,8 @@ class DashLight_Settings {
 		add_action( 'admin_menu', array( __CLASS__, 'add_page' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register' ) );
 		add_action( 'update_option_' . self::OPTION, array( __CLASS__, 'after_save' ), 10, 2 );
-		add_action( 'admin_post_dashlight_check_now', array( __CLASS__, 'handle_check_now' ) );
-		add_filter( 'plugin_action_links_' . plugin_basename( DASHLIGHT_FILE ), array( __CLASS__, 'action_links' ) );
+		add_action( 'admin_post_dashlights_check_now', array( __CLASS__, 'handle_check_now' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( DASHLIGHTS_FILE ), array( __CLASS__, 'action_links' ) );
 	}
 
 	/**
@@ -64,8 +64,8 @@ class DashLight_Settings {
 	 */
 	public static function add_page() {
 		add_options_page(
-			__( 'DashLight', 'dashlight' ),
-			__( 'DashLight', 'dashlight' ),
+			__( 'DashLights', 'dashlights' ),
+			__( 'DashLights', 'dashlights' ),
 			'manage_options',
 			self::PAGE,
 			array( __CLASS__, 'render' )
@@ -80,7 +80,7 @@ class DashLight_Settings {
 	 */
 	public static function action_links( $links ) {
 		$url = admin_url( 'options-general.php?page=' . self::PAGE );
-		array_unshift( $links, '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Settings', 'dashlight' ) . '</a>' );
+		array_unshift( $links, '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Settings', 'dashlights' ) . '</a>' );
 		return $links;
 	}
 
@@ -98,11 +98,11 @@ class DashLight_Settings {
 			)
 		);
 
-		add_settings_section( 'dashlight_main', '', '__return_false', self::PAGE );
+		add_settings_section( 'dashlights_main', '', '__return_false', self::PAGE );
 
-		add_settings_field( 'dashlight_recipient', __( 'Send reminders to', 'dashlight' ), array( __CLASS__, 'field_recipient' ), self::PAGE, 'dashlight_main', array( 'label_for' => 'dashlight_recipient' ) );
-		add_settings_field( 'dashlight_reminders', __( 'Reminder emails', 'dashlight' ), array( __CLASS__, 'field_reminders' ), self::PAGE, 'dashlight_main', array( 'label_for' => 'dashlight_reminders' ) );
-		add_settings_field( 'dashlight_domain_date', __( 'Domain renewal date (optional)', 'dashlight' ), array( __CLASS__, 'field_domain_date' ), self::PAGE, 'dashlight_main', array( 'label_for' => 'dashlight_domain_date' ) );
+		add_settings_field( 'dashlights_recipient', __( 'Send reminders to', 'dashlights' ), array( __CLASS__, 'field_recipient' ), self::PAGE, 'dashlights_main', array( 'label_for' => 'dashlights_recipient' ) );
+		add_settings_field( 'dashlights_reminders', __( 'Reminder emails', 'dashlights' ), array( __CLASS__, 'field_reminders' ), self::PAGE, 'dashlights_main', array( 'label_for' => 'dashlights_reminders' ) );
+		add_settings_field( 'dashlights_domain_date', __( 'Domain renewal date (optional)', 'dashlights' ), array( __CLASS__, 'field_domain_date' ), self::PAGE, 'dashlights_main', array( 'label_for' => 'dashlights_domain_date' ) );
 	}
 
 	/**
@@ -117,7 +117,7 @@ class DashLight_Settings {
 
 		$email = isset( $input['recipient'] ) ? sanitize_email( $input['recipient'] ) : '';
 		if ( '' !== $email && ! is_email( $email ) ) {
-			add_settings_error( self::OPTION, 'dashlight_bad_email', __( "That email address doesn't look right, so reminders will go to the site's admin email.", 'dashlight' ) );
+			add_settings_error( self::OPTION, 'dashlights_bad_email', __( "That email address doesn't look right, so reminders will go to the site's admin email.", 'dashlights' ) );
 			$email = '';
 		}
 		$clean['recipient'] = $email;
@@ -128,7 +128,7 @@ class DashLight_Settings {
 		if ( '' !== $date ) {
 			$parsed = DateTime::createFromFormat( '!Y-m-d', $date, new DateTimeZone( 'UTC' ) );
 			if ( ! $parsed || $parsed->format( 'Y-m-d' ) !== $date ) {
-				add_settings_error( self::OPTION, 'dashlight_bad_date', __( "That renewal date doesn't look right, so it wasn't saved.", 'dashlight' ) );
+				add_settings_error( self::OPTION, 'dashlights_bad_date', __( "That renewal date doesn't look right, so it wasn't saved.", 'dashlights' ) );
 				$date = '';
 			}
 		}
@@ -147,7 +147,7 @@ class DashLight_Settings {
 		$old_date = is_array( $old_value ) && isset( $old_value['domain_date'] ) ? $old_value['domain_date'] : '';
 		$new_date = is_array( $new_value ) && isset( $new_value['domain_date'] ) ? $new_value['domain_date'] : '';
 		if ( $old_date !== $new_date ) {
-			DashLight_Checks::refresh( array( 'domain' ) );
+			DashLights_Checks::refresh( array( 'domain' ) );
 		}
 	}
 
@@ -156,11 +156,11 @@ class DashLight_Settings {
 	 */
 	public static function handle_check_now() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not allowed to do that.', 'dashlight' ), 403 );
+			wp_die( esc_html__( 'You are not allowed to do that.', 'dashlights' ), 403 );
 		}
-		check_admin_referer( 'dashlight_check_now' );
+		check_admin_referer( 'dashlights_check_now' );
 
-		DashLight_Checks::refresh();
+		DashLights_Checks::refresh();
 
 		$back = wp_get_referer();
 		wp_safe_redirect( $back ? $back : admin_url() );
@@ -174,10 +174,10 @@ class DashLight_Settings {
 	 */
 	public static function check_now_button( $button_class = 'button' ) {
 		?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="dashlight-check-now">
-			<input type="hidden" name="action" value="dashlight_check_now" />
-			<?php wp_nonce_field( 'dashlight_check_now' ); ?>
-			<button type="submit" class="<?php echo esc_attr( $button_class ); ?>"><?php esc_html_e( 'Check now', 'dashlight' ); ?></button>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="dashlights-check-now">
+			<input type="hidden" name="action" value="dashlights_check_now" />
+			<?php wp_nonce_field( 'dashlights_check_now' ); ?>
+			<button type="submit" class="<?php echo esc_attr( $button_class ); ?>"><?php esc_html_e( 'Check now', 'dashlights' ); ?></button>
 		</form>
 		<?php
 	}
@@ -188,12 +188,12 @@ class DashLight_Settings {
 	public static function field_recipient() {
 		$settings = self::get();
 		printf(
-			'<input type="email" id="dashlight_recipient" name="%1$s[recipient]" value="%2$s" class="regular-text" placeholder="%3$s" />',
+			'<input type="email" id="dashlights_recipient" name="%1$s[recipient]" value="%2$s" class="regular-text" placeholder="%3$s" />',
 			esc_attr( self::OPTION ),
 			esc_attr( $settings['recipient'] ),
 			esc_attr( get_option( 'admin_email' ) )
 		);
-		echo '<p class="description">' . esc_html__( "Leave blank to use the site's admin email.", 'dashlight' ) . '</p>';
+		echo '<p class="description">' . esc_html__( "Leave blank to use the site's admin email.", 'dashlights' ) . '</p>';
 	}
 
 	/**
@@ -202,10 +202,10 @@ class DashLight_Settings {
 	public static function field_reminders() {
 		$settings = self::get();
 		printf(
-			'<label><input type="checkbox" id="dashlight_reminders" name="%1$s[reminders]" value="1" %2$s /> %3$s</label>',
+			'<label><input type="checkbox" id="dashlights_reminders" name="%1$s[reminders]" value="1" %2$s /> %3$s</label>',
 			esc_attr( self::OPTION ),
 			checked( 1, (int) $settings['reminders'], false ),
-			esc_html__( 'Email me before my domain or security certificate expires', 'dashlight' )
+			esc_html__( 'Email me before my domain or security certificate expires', 'dashlights' )
 		);
 	}
 
@@ -215,11 +215,11 @@ class DashLight_Settings {
 	public static function field_domain_date() {
 		$settings = self::get();
 		printf(
-			'<input type="date" id="dashlight_domain_date" name="%1$s[domain_date]" value="%2$s" />',
+			'<input type="date" id="dashlights_domain_date" name="%1$s[domain_date]" value="%2$s" />',
 			esc_attr( self::OPTION ),
 			esc_attr( $settings['domain_date'] )
 		);
-		echo '<p class="description">' . esc_html__( "Only needed if DashLight can't find it on its own. Find this in your domain registrar account.", 'dashlight' ) . '</p>';
+		echo '<p class="description">' . esc_html__( "Only needed if DashLights can't find it on its own. Find this in your domain registrar account.", 'dashlights' ) . '</p>';
 	}
 
 	/**
@@ -230,8 +230,8 @@ class DashLight_Settings {
 			return;
 		}
 		?>
-		<div class="wrap dashlight-settings">
-			<h1><?php esc_html_e( 'DashLight', 'dashlight' ); ?></h1>
+		<div class="wrap dashlights-settings">
+			<h1><?php esc_html_e( 'DashLights', 'dashlights' ); ?></h1>
 			<form method="post" action="options.php">
 				<?php
 				settings_fields( self::PAGE );
@@ -240,7 +240,7 @@ class DashLight_Settings {
 				?>
 			</form>
 			<hr />
-			<p><?php esc_html_e( 'DashLight checks your site once a day. Run the checks again now:', 'dashlight' ); ?></p>
+			<p><?php esc_html_e( 'DashLights checks your site once a day. Run the checks again now:', 'dashlights' ); ?></p>
 			<?php self::check_now_button( 'button button-secondary' ); ?>
 		</div>
 		<?php

@@ -2,7 +2,7 @@
 /**
  * Daily scheduled check and expiration reminder emails.
  *
- * @package DashLight
+ * @package DashLights
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,9 +10,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Schedules the daily check and sends reminders that are due.
  */
-class DashLight_Reminders {
+class DashLights_Reminders {
 
-	const HOOK = 'dashlight_daily';
+	const HOOK = 'dashlights_daily';
 
 	/**
 	 * Days before expiration that each reminder goes out, largest first.
@@ -58,14 +58,14 @@ class DashLight_Reminders {
 	 * The daily job: run every check, then send any reminders that are due.
 	 */
 	public static function run() {
-		$results = DashLight_Checks::refresh();
+		$results = DashLights_Checks::refresh();
 
-		$settings = DashLight_Settings::get();
+		$settings = DashLights_Settings::get();
 		if ( empty( $settings['reminders'] ) ) {
 			return;
 		}
 
-		$data = DashLight_Checks::data();
+		$data = DashLights_Checks::data();
 		foreach ( self::thresholds() as $key => $days_list ) {
 			if ( empty( $results[ $key ] ) ) {
 				continue;
@@ -78,7 +78,7 @@ class DashLight_Reminders {
 				$data['sent'] = self::mark_sent( $key, $results[ $key ]['expires'], $milestone, $days_list, $data['sent'] );
 			}
 		}
-		DashLight_Checks::save( $data );
+		DashLights_Checks::save( $data );
 	}
 
 	/**
@@ -103,7 +103,7 @@ class DashLight_Reminders {
 			return ( 'ssl' === $key && ! in_array( 'expired', $already, true ) ) ? 'expired' : null;
 		}
 
-		$days = DashLight_Checks::days_until( $result['expires'] );
+		$days = DashLights_Checks::days_until( $result['expires'] );
 		$due  = null;
 		foreach ( $days_list as $threshold ) {
 			if ( $days <= $threshold ) {
@@ -157,41 +157,41 @@ class DashLight_Reminders {
 	 * @return bool
 	 */
 	public static function send( $key, $result ) {
-		$site     = DashLight_Checks::site_host();
+		$site     = DashLights_Checks::site_host();
 		$date     = wp_date( get_option( 'date_format' ), $result['expires'] );
-		$days     = DashLight_Checks::days_until( $result['expires'] );
+		$days     = DashLights_Checks::days_until( $result['expires'] );
 		$expired  = (int) $result['expires'] <= time();
-		$settings = admin_url( 'options-general.php?page=' . DashLight_Settings::PAGE );
+		$settings = admin_url( 'options-general.php?page=' . DashLights_Settings::PAGE );
 
 		if ( 'domain' === $key ) {
 			$domain  = isset( $result['domain'] ) ? $result['domain'] : $site;
 			$subject = sprintf(
 				/* translators: 1: domain name, 2: number of days */
-				_n( 'Your domain %1$s expires in %2$d day', 'Your domain %1$s expires in %2$d days', $days, 'dashlight' ),
+				_n( 'Your domain %1$s expires in %2$d day', 'Your domain %1$s expires in %2$d days', $days, 'dashlights' ),
 				$domain,
 				$days
 			);
 			$body = sprintf(
 				/* translators: 1: domain name, 2: date */
-				__( "Your domain %1\$s expires on %2\$s.\n\nIf it's set to renew automatically, you don't need to do anything. If not, renew it with the company you registered it with before that date, or your website and email will stop working.", 'dashlight' ),
+				__( "Your domain %1\$s expires on %2\$s.\n\nIf it's set to renew automatically, you don't need to do anything. If not, renew it with the company you registered it with before that date, or your website and email will stop working.", 'dashlights' ),
 				$domain,
 				$date
 			);
 		} elseif ( $expired ) {
 			/* translators: %s: site address */
-			$subject = sprintf( __( 'The security certificate for %s has expired', 'dashlight' ), $site );
+			$subject = sprintf( __( 'The security certificate for %s has expired', 'dashlights' ), $site );
 			/* translators: %s: site address */
-			$body = sprintf( __( "The security certificate for %s has expired. Visitors may see a security warning instead of your website.\n\nContact your hosting company and ask them to renew it.", 'dashlight' ), $site );
+			$body = sprintf( __( "The security certificate for %s has expired. Visitors may see a security warning instead of your website.\n\nContact your hosting company and ask them to renew it.", 'dashlights' ), $site );
 		} else {
 			$subject = sprintf(
 				/* translators: 1: site address, 2: number of days */
-				_n( 'The security certificate for %1$s expires in %2$d day', 'The security certificate for %1$s expires in %2$d days', $days, 'dashlight' ),
+				_n( 'The security certificate for %1$s expires in %2$d day', 'The security certificate for %1$s expires in %2$d days', $days, 'dashlights' ),
 				$site,
 				$days
 			);
 			$body = sprintf(
 				/* translators: 1: site address, 2: date */
-				__( "The security certificate for %1\$s expires on %2\$s.\n\nIt usually renews by itself. If it hasn't renewed by then, contact your hosting company. Without it, visitors will see a security warning instead of your website.", 'dashlight' ),
+				__( "The security certificate for %1\$s expires on %2\$s.\n\nIt usually renews by itself. If it hasn't renewed by then, contact your hosting company. Without it, visitors will see a security warning instead of your website.", 'dashlights' ),
 				$site,
 				$date
 			);
@@ -199,11 +199,11 @@ class DashLight_Reminders {
 
 		$footer = "\n\n—\n" . sprintf(
 			/* translators: 1: site address, 2: settings page address */
-			__( "Sent by DashLight on %1\$s. Turn these emails off here: %2\$s\nWant someone to handle this for you? https://ckreativedigital.com/website-management/", 'dashlight' ),
+			__( "Sent by DashLights on %1\$s. Turn these emails off here: %2\$s\nWant someone to handle this for you? https://ckreativedigital.com/website-management/", 'dashlights' ),
 			$site,
 			$settings
 		);
 
-		return wp_mail( DashLight_Settings::recipient(), $subject, $body . $footer );
+		return wp_mail( DashLights_Settings::recipient(), $subject, $body . $footer );
 	}
 }
